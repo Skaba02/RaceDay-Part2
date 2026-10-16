@@ -6,7 +6,8 @@ A RESTful API for managing running events. Organisers create events and race cat
 **Student number:** ST10494173
 **Module:** PROG6212
 **Repository:** https://github.com/Skaba02/RaceDay-Part2
-**Video walkthrough:** [ADD YOUTUBE LINK]
+**Video walkthrough:** https://youtu.be/xvQdhjHERa8?si=giyKpG8fr3Hvzt0O
+
 
 ---
 
