@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RaceDay.Api.Data;
 
@@ -17,6 +18,17 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        // Tests must behave the same on every computer. Whatever Blob Storage connection string
+        // the developer has set (user secrets, environment variables), tests always run
+        // as if storage is NOT set up, so no test ever uploads a real file.
+        builder.ConfigureAppConfiguration((context, config) =>
+        {
+            config.AddInMemoryCollection(new[]
+            {
+                new KeyValuePair<string, string?>("BlobStorage:ConnectionString", string.Empty)
+            });
+        });
+
         builder.ConfigureServices(services =>
         {
             var descriptor = services.SingleOrDefault(
