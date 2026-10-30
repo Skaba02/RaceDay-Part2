@@ -1,0 +1,86 @@
+@model EventDetailsViewModel
+@{
+    var ev = Model.Event;
+    ViewData["Title"] = ev.Title;
+}
+<a asp-action="Index" class="rd-back">&larr; All events</a>
+
+<div class="row g-4 mt-1">
+    <div class="col-lg-7">
+        @if (ev.HasBanner)
+        {
+            <img class="img-fluid rd-detail-banner" src="@Url.Action("Event", "Images", new { id = ev.EventId })" alt="Banner for @ev.Title" />
+        }
+        else
+        {
+            <div class="rd-detail-banner rd-banner-empty"><span>@ev.EventType</span></div>
+        }
+    </div>
+    <div class="col-lg-5">
+        <div class="rd-panel h-100">
+            <span class="badge rd-type-badge mb-2">@ev.EventType</span>
+            <h1 class="rd-heading">@ev.Title</h1>
+            <dl class="rd-facts">
+                <dt>When</dt><dd>@Formatters.DateTimeText(ev.EventDate)</dd>
+                <dt>Where</dt><dd>@ev.Location</dd>
+                <dt>Distance</dt><dd>@Formatters.Distance(ev.DistanceKm)</dd>
+                <dt>Organiser</dt><dd>@ev.OrganiserName</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(ev.Description))
+{
+    <div class="rd-panel mt-4">
+        <h3 class="rd-heading">About this event</h3>
+        <p class="mb-0" style="white-space: pre-line">@ev.Description</p>
+    </div>
+}
+
+<div class="rd-panel mt-4">
+    <h3 class="rd-heading">Choose your category</h3>
+
+    @if (ev.Categories.Count == 0)
+    {
+        <p class="mb-0">The organiser has not added any categories yet. Please check back soon.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle rd-table">
+                <thead>
+                    <tr><th>Category</th><th>Distance</th><th>Places</th><th class="text-end">Enrol</th></tr>
+                </thead>
+                <tbody>
+                @foreach (var category in ev.Categories)
+                {
+                    <tr>
+                        <td><strong>@category.CategoryName</strong></td>
+                        <td>@Formatters.Distance(category.DistanceKm)</td>
+                        <td>@category.EnrolledCount of @category.MaxParticipants taken</td>
+                        <td class="text-end">
+                            @if (Model.EnrolledCategoryIds.Contains(category.CategoryId))
+                            {
+                                <span class="badge text-bg-success">You are enrolled</span>
+                            }
+                            else if (category.IsFull)
+                            {
+                                <span class="badge text-bg-secondary">Full</span>
+                            }
+                            else
+                            {
+                                <form asp-controller="Events" asp-action="Enrol" method="post" class="d-inline">
+                                    <input type="hidden" name="eventId" value="@ev.EventId" />
+                                    <input type="hidden" name="categoryId" value="@category.CategoryId" />
+                                    <button type="submit" class="btn btn-sm rd-btn">Enrol</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

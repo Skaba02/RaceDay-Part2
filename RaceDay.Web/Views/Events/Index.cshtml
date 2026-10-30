@@ -1,0 +1,59 @@
+@model EventListViewModel
+@{
+    ViewData["Title"] = "Find events";
+}
+<h1 class="rd-heading">Upcoming events</h1>
+
+<form method="get" asp-controller="Events" asp-action="Index" class="rd-panel mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label" for="Q">Search</label>
+            <input class="form-control" id="Q" name="Q" value="@Model.Filter.Q" placeholder="Event name or description" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="EventType">Type</label>
+            <select class="form-select" id="EventType" name="EventType">
+                <option value="">All types</option>
+                @foreach (var type in EventTypes.All)
+                {
+                    <option value="@type" selected="@(string.Equals(Model.Filter.EventType, type, StringComparison.OrdinalIgnoreCase))">@type</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="Location">Location</label>
+            <input class="form-control" id="Location" name="Location" value="@Model.Filter.Location" placeholder="Any" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="DateFrom">From</label>
+            <input type="date" class="form-control" id="DateFrom" name="DateFrom" value="@(Model.Filter.DateFrom?.ToString("yyyy-MM-dd"))" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="DateTo">To</label>
+            <input type="date" class="form-control" id="DateTo" name="DateTo" value="@(Model.Filter.DateTo?.ToString("yyyy-MM-dd"))" />
+        </div>
+        <div class="col-12 d-flex gap-2">
+            <button type="submit" class="btn rd-btn">Apply filters</button>
+            <a class="btn btn-outline-secondary" asp-controller="Events" asp-action="Index">Clear</a>
+        </div>
+    </div>
+</form>
+
+@if (Model.Events.Count == 0)
+{
+    <div class="rd-panel text-center py-5">
+        <h3 class="rd-heading">No events found</h3>
+        <p class="mb-0">Try changing or clearing the filters.</p>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var item in Model.Events)
+        {
+            <div class="col-md-6 col-lg-4">
+                <partial name="_EventCard" model="item" />
+            </div>
+        }
+    </div>
+}
