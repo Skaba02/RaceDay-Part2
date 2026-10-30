@@ -93,6 +93,12 @@ public class CategoriesController : ControllerBase
         if (category.Event!.OrganiserId != organiserId)
             return StatusCode(StatusCodes.Status403Forbidden, new { message = "You do not own this event." });
 
+        // Part 3: a category that already has enrolments cannot be deleted, so the
+        // website can show a clear message instead of a database error.
+        var hasEnrolments = await _context.Enrolments.AnyAsync(en => en.CategoryId == id);
+        if (hasEnrolments)
+            return Conflict(new { message = "This category already has enrolments, so it cannot be deleted." });
+
         _context.Categories.Remove(category);
         await _context.SaveChangesAsync();
         return NoContent();

@@ -50,7 +50,12 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+// HTTPS redirection can be switched off (DisableHttpsRedirection=true) when the API
+// is called over plain http, for example from the MVC container in Docker.
+if (!app.Configuration.GetValue<bool>("DisableHttpsRedirection"))
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseSession();
 

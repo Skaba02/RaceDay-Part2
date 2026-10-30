@@ -5,6 +5,7 @@ using RaceDay.Api.Dtos.Events;
 using RaceDay.Api.Filters;
 using RaceDay.Api.Helpers;
 using RaceDay.Api.Models;
+using RaceDay.Api.Services;
 
 namespace RaceDay.Api.Controllers;
 
@@ -14,10 +15,12 @@ namespace RaceDay.Api.Controllers;
 public class EventsController : ControllerBase
 {
     private readonly RaceDayDbContext _context;
+    private readonly BlobStorageService _blobs;
 
-    public EventsController(RaceDayDbContext context)
+    public EventsController(RaceDayDbContext context, IConfiguration configuration)
     {
         _context = context;
+        _blobs = new BlobStorageService(configuration);
     }
 
     /// <summary>Lists all events. Public - no login required.</summary>
@@ -99,8 +102,33 @@ public class EventsController : ControllerBase
         if (ev.OrganiserId != organiserId)
             return StatusCode(StatusCodes.Status403Forbidden, new { message = "You do not own this event." });
 
+        // Part 3: an event that already has enrolments cannot be deleted, so the
+        // website can show a clear message instead of a database error.
+        var hasEnrolments = await _context.Enrolments.AnyAsync(en => en.Category!.EventId == id);
+        if (hasEnrolments)
+            return Conflict(new { message = "This event already has enrolments, so it cannot be deleted." });
+
+        var banner = await _context.EventImages.FirstOrDefaultAsync(i => i.EventId == id);
+
         _context.Events.Remove(ev);
         await _context.SaveChangesAsync();
+
+        if (banner != null)
+        {
+            try
+            {
+                await _blobs.DeleteAsync(BlobStorageService.EventBannerContainer, banner.BlobName);
+            }
+            catch (BlobStorageNotConfiguredException)
+            {
+                // The event is already deleted. A leftover image file does no harm.
+            }
+            catch (Azure.RequestFailedException)
+            {
+                // The event is already deleted. A leftover image file does no harm.
+            }
+        }
+
         return NoContent();
     }
 
