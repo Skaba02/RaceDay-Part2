@@ -1,0 +1,90 @@
+@{
+    var loggedIn = Context.Session.GetInt32(SessionKeys.UserId) != null;
+    var role = Context.Session.GetString(SessionKeys.Role);
+    var fullName = Context.Session.GetString(SessionKeys.FullName) ?? string.Empty;
+    var hasPicture = Context.Session.GetString(SessionKeys.HasPicture) == "1";
+    var pictureVersion = Context.Session.GetString(SessionKeys.PictureVersion) ?? "0";
+    var initial = string.IsNullOrEmpty(fullName) ? "?" : fullName.Substring(0, 1).ToUpperInvariant();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RaceDay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark rd-navbar">
+        <div class="container">
+            <a class="navbar-brand rd-logo" asp-controller="Home" asp-action="Index">RACE<span>DAY</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto">
+                    @if (role == "Organiser")
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Organiser" asp-action="Dashboard">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Organiser" asp-action="Events">My Events</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Organiser" asp-action="CreateEvent">Create Event</a></li>
+                    }
+                    else if (role == "Participant")
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Events" asp-action="Index">Find Events</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Participant" asp-action="MyEnrolments">My Enrolments</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Participant" asp-action="MyResults">My Results</a></li>
+                    }
+                </ul>
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    @if (loggedIn)
+                    {
+                        <li class="nav-item d-flex align-items-center me-lg-3">
+                            <a class="nav-link d-flex align-items-center gap-2" asp-controller="Profile" asp-action="Index">
+                                @if (hasPicture)
+                                {
+                                    <img class="rd-avatar" src="@Url.Action("Profile", "Images", new { v = pictureVersion })" alt="Your profile picture" />
+                                }
+                                else
+                                {
+                                    <span class="rd-avatar rd-avatar-initial">@initial</span>
+                                }
+                                <span>@fullName</span>
+                                <span class="badge rd-role-badge">@role</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-light">Log out</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Log in</a></li>
+                        <li class="nav-item ms-lg-2"><a class="btn btn-sm rd-btn" asp-controller="Account" asp-action="Register">Join RaceDay</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <partial name="_Alerts" />
+        @RenderBody()
+    </main>
+
+    <footer class="rd-footer">
+        <div class="container d-flex flex-wrap justify-content-between">
+            <span>&copy; RaceDay. Run it. Track it. Own it.</span>
+            <span>Part 3 - Web Application</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

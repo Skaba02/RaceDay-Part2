@@ -1,0 +1,19 @@
+@model EventListItem
+<div class="card rd-card h-100">
+    @if (Model.HasBanner)
+    {
+        <img class="card-img-top rd-banner" src="@Url.Action("Event", "Images", new { id = Model.EventId })" alt="Banner for @Model.Title" />
+    }
+    else
+    {
+        <div class="rd-banner rd-banner-empty"><span>@Model.EventType</span></div>
+    }
+    <div class="card-body d-flex flex-column">
+        <span class="badge rd-type-badge align-self-start mb-2">@Model.EventType</span>
+        <h5 class="card-title">@Model.Title</h5>
+        <p class="rd-meta mb-1">@Formatters.DateTimeText(Model.EventDate)</p>
+        <p class="rd-meta mb-1">@Model.Location</p>
+        <p class="rd-meta mb-3">@Formatters.Distance(Model.DistanceKm) &middot; @Model.CategoryCount @(Model.CategoryCount == 1 ? "category" : "categories")</p>
+        <a class="btn rd-btn mt-auto" asp-controller="Events" asp-action="Details" asp-route-id="@Model.EventId">View and enrol</a>
+    </div>
+</div>

@@ -1,0 +1,9 @@
+@{
+    ViewData["Title"] = "Something went wrong";
+}
+<div class="rd-panel text-center py-5">
+    <h1 class="rd-heading">Something went wrong</h1>
+    <p class="lead">Sorry, we could not finish that. Nothing was lost. Please try again.</p>
+    <a class="btn rd-btn" asp-controller="Home" asp-action="Index">Back to the home page</a>
+    <p class="rd-meta mt-4">Reference: @ViewBag.RequestId</p>
+</div>
