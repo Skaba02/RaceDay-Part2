@@ -1,13 +1,14 @@
-name: Build and Test RaceDay API
+name: Build and Test RaceDay
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, part3-mvc ]
   pull_request:
     branches: [ main ]
 
 jobs:
   build-and-test:
+    name: Build API, build MVC website and run tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -21,8 +22,22 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore RaceDay.sln
 
-      - name: Build
+      - name: Build API and MVC website
         run: dotnet build RaceDay.sln --no-restore --configuration Release
+
+      - name: Build MVC project on its own
+        run: dotnet build RaceDay.Web/RaceDay.Web.csproj --no-restore --configuration Release
 
       - name: Run tests
         run: dotnet test RaceDay.sln --no-build --configuration Release --verbosity normal
+
+  docker-build:
+    name: Build the Docker image for the MVC website
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t raceday-web ./RaceDay.Web
