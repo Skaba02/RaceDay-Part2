@@ -1,0 +1,75 @@
+@model CategoriesViewModel
+@{
+    var ev = Model.Event;
+    ViewData["Title"] = "Categories";
+}
+<a asp-action="Events" class="rd-back">&larr; My events</a>
+<h1 class="rd-heading mt-2">Categories for @ev.Title</h1>
+<p class="rd-meta">@Formatters.DateTimeText(ev.EventDate) &middot; @ev.Location</p>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="rd-panel">
+            <h3 class="rd-heading">Current categories</h3>
+            @if (ev.Categories.Count == 0)
+            {
+                <p class="mb-0">No categories yet. Add one using the form.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle rd-table">
+                        <thead><tr><th>Category</th><th>Distance</th><th>Places</th><th class="text-end">Manage</th></tr></thead>
+                        <tbody>
+                        @foreach (var category in ev.Categories)
+                        {
+                            <tr>
+                                <td><strong>@category.CategoryName</strong></td>
+                                <td>@Formatters.Distance(category.DistanceKm)</td>
+                                <td>@category.EnrolledCount / @category.MaxParticipants</td>
+                                <td class="text-end text-nowrap">
+                                    <a class="btn btn-sm btn-outline-secondary" asp-action="EditCategory" asp-route-eventId="@ev.EventId" asp-route-id="@category.CategoryId">Edit</a>
+                                    <form asp-controller="Organiser" asp-action="DeleteCategory" method="post" class="d-inline"
+                                          onsubmit="return confirm('Delete this category?');">
+                                        <input type="hidden" name="eventId" value="@ev.EventId" />
+                                        <input type="hidden" name="id" value="@category.CategoryId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="rd-panel">
+            <h3 class="rd-heading">Add a category</h3>
+            <p class="rd-meta">Use a distance (for example 10km Open) or an age group (for example Under 20).</p>
+            <form asp-controller="Organiser" asp-action="AddCategory" method="post">
+                <input type="hidden" name="EventId" value="@ev.EventId" />
+                <div class="mb-3">
+                    <label class="form-label" for="CategoryName">Category name</label>
+                    <input class="form-control" id="CategoryName" name="CategoryName" maxlength="100" required />
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label" for="DistanceKm">Distance (km)</label>
+                        <input class="form-control" id="DistanceKm" name="DistanceKm" type="number" step="0.1" min="0.1" value="@Model.NewCategory.DistanceKm.ToString(System.Globalization.CultureInfo.InvariantCulture)" required />
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label" for="MaxParticipants">Places</label>
+                        <input class="form-control" id="MaxParticipants" name="MaxParticipants" type="number" min="1" value="@Model.NewCategory.MaxParticipants" required />
+                    </div>
+                </div>
+                <button type="submit" class="btn rd-btn">Add category</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a class="btn btn-outline-secondary" asp-action="Enrolments" asp-route-eventId="@ev.EventId">View enrolments</a>
+</div>

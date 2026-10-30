@@ -1,0 +1,53 @@
+@model EventEnrolmentsViewModel
+@{
+    var ev = Model.Event;
+    ViewData["Title"] = "Enrolments";
+}
+<a asp-action="Events" class="rd-back">&larr; My events</a>
+<h1 class="rd-heading mt-2">Enrolments for @ev.Title</h1>
+<p class="rd-meta">@Formatters.DateTimeText(ev.EventDate) &middot; @ev.Location &middot; @Model.Rows.Count enrolled</p>
+
+@if (Model.Rows.Count == 0)
+{
+    <div class="rd-panel text-center py-5">
+        <h3 class="rd-heading">Nobody has enrolled yet</h3>
+        <p class="mb-0">Participants will appear here as soon as they enrol.</p>
+    </div>
+}
+else
+{
+    <div class="rd-panel">
+        <div class="table-responsive">
+            <table class="table align-middle rd-table">
+                <thead>
+                    <tr><th>Participant</th><th>Category</th><th>Status</th><th>Enrolled on</th><th class="text-end">Change status</th></tr>
+                </thead>
+                <tbody>
+                @foreach (var row in Model.Rows)
+                {
+                    <tr>
+                        <td><strong>@row.ParticipantName</strong><br /><span class="rd-meta">@row.ParticipantEmail</span></td>
+                        <td>@row.CategoryName</td>
+                        <td><partial name="_StatusBadge" model="row.Status" /></td>
+                        <td>@Formatters.DateText(row.EnrolmentDate)</td>
+                        <td class="text-end text-nowrap">
+                            <form asp-controller="Organiser" asp-action="SetStatus" method="post" class="d-inline">
+                                <input type="hidden" name="eventId" value="@ev.EventId" />
+                                <input type="hidden" name="enrolmentId" value="@row.EnrolmentId" />
+                                <input type="hidden" name="status" value="Confirmed" />
+                                <button type="submit" class="btn btn-sm btn-outline-success" disabled="@(row.Status == "Confirmed")">Confirm</button>
+                            </form>
+                            <form asp-controller="Organiser" asp-action="SetStatus" method="post" class="d-inline">
+                                <input type="hidden" name="eventId" value="@ev.EventId" />
+                                <input type="hidden" name="enrolmentId" value="@row.EnrolmentId" />
+                                <input type="hidden" name="status" value="Pending" />
+                                <button type="submit" class="btn btn-sm btn-outline-warning" disabled="@(row.Status == "Pending")">Set pending</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

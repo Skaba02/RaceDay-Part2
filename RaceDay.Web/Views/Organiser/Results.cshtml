@@ -1,0 +1,62 @@
+@model EventEnrolmentsViewModel
+@{
+    var ev = Model.Event;
+    ViewData["Title"] = "Results";
+}
+<a asp-action="Events" class="rd-back">&larr; My events</a>
+<h1 class="rd-heading mt-2">Results for @ev.Title</h1>
+<p class="rd-meta">@Formatters.DateTimeText(ev.EventDate) &middot; @ev.Location</p>
+
+@if (ev.EventDate > DateTime.Now)
+{
+    <div class="alert alert-info">This event has not happened yet. Results are normally entered after the event ends.</div>
+}
+
+@if (Model.Rows.Count == 0)
+{
+    <div class="rd-panel text-center py-5">
+        <h3 class="rd-heading">There is nobody to record results for</h3>
+        <p class="mb-0">Results can be entered once participants have enrolled.</p>
+    </div>
+}
+else
+{
+    <div class="rd-panel">
+        <p class="rd-meta">Type the finish time as hh:mm:ss (for example 00:25:30) and the finishing position, then save. Saved results are published straight away.</p>
+        <div class="table-responsive">
+            <table class="table align-middle rd-table">
+                <thead>
+                    <tr><th>Participant</th><th>Category</th><th>Status</th><th>Result</th></tr>
+                </thead>
+                <tbody>
+                @foreach (var row in Model.Rows)
+                {
+                    <tr>
+                        <td><strong>@row.ParticipantName</strong></td>
+                        <td>@row.CategoryName</td>
+                        <td><partial name="_StatusBadge" model="row.Status" /></td>
+                        <td>
+                            @if (row.HasResult)
+                            {
+                                <span class="rd-time">@Formatters.Duration(row.FinishTime)</span>
+                                <span class="rd-position ms-2">Position @(row.Position?.ToString() ?? "-")</span>
+                                <span class="badge text-bg-success ms-2">Published</span>
+                            }
+                            else
+                            {
+                                <form asp-controller="Organiser" asp-action="RecordResult" method="post" class="d-flex flex-wrap gap-2">
+                                    <input type="hidden" name="EnrolmentId" value="@row.EnrolmentId" />
+                                    <input type="hidden" name="EventId" value="@ev.EventId" />
+                                    <input class="form-control form-control-sm w-auto" name="FinishTimeText" placeholder="00:25:30" maxlength="8" required />
+                                    <input class="form-control form-control-sm w-auto" name="Position" type="number" min="1" placeholder="Position" required />
+                                    <button type="submit" class="btn btn-sm rd-btn">Save and publish</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

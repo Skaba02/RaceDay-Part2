@@ -1,0 +1,89 @@
+@model OrganiserDashboard
+@{
+    ViewData["Title"] = "Dashboard";
+    var today = DateTime.Today;
+    var upcoming = Model.Events.Where(ev => ev.EventDate >= today).OrderBy(ev => ev.EventDate).ToList();
+}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <h1 class="rd-heading mb-0">Organiser dashboard</h1>
+    <a class="btn rd-btn" asp-action="CreateEvent">Create a new event</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="rd-stat">
+            <span class="rd-stat-number">@Model.TotalEvents</span>
+            <span class="rd-stat-label">Events created</span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="rd-stat">
+            <span class="rd-stat-number">@Model.TotalEnrolments</span>
+            <span class="rd-stat-label">Total enrolments</span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="rd-stat">
+            <span class="rd-stat-number rd-stat-small">@(Model.NextEventDate.HasValue ? Formatters.DateText(Model.NextEventDate.Value) : "None planned")</span>
+            <span class="rd-stat-label">Next event</span>
+        </div>
+    </div>
+</div>
+
+<div class="rd-panel mb-4">
+    <h3 class="rd-heading">Upcoming events</h3>
+    @if (upcoming.Count == 0)
+    {
+        <p class="mb-0">You have no upcoming events. <a asp-action="CreateEvent">Create one now.</a></p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle rd-table">
+                <thead><tr><th>Event</th><th>Date</th><th>Enrolments</th><th class="text-end">Manage</th></tr></thead>
+                <tbody>
+                @foreach (var item in upcoming)
+                {
+                    <tr>
+                        <td><strong>@item.Title</strong><br /><span class="rd-meta">@item.Location</span></td>
+                        <td>@Formatters.DateTimeText(item.EventDate)</td>
+                        <td><span class="badge rd-count-badge">@item.TotalEnrolments</span></td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Enrolments" asp-route-eventId="@item.EventId">Enrolments</a>
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Categories" asp-route-eventId="@item.EventId">Categories</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="rd-panel">
+    <h3 class="rd-heading">Enrolments per event</h3>
+    @if (Model.Events.Count == 0)
+    {
+        <p class="mb-0">No events yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle rd-table">
+                <thead><tr><th>Event</th><th>Date</th><th>Categories</th><th>Enrolments</th><th class="text-end">Results</th></tr></thead>
+                <tbody>
+                @foreach (var item in Model.Events)
+                {
+                    <tr>
+                        <td>@item.Title</td>
+                        <td>@Formatters.DateText(item.EventDate)</td>
+                        <td>@item.CategoryCount</td>
+                        <td>@item.TotalEnrolments</td>
+                        <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="Results" asp-route-eventId="@item.EventId">Enter results</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

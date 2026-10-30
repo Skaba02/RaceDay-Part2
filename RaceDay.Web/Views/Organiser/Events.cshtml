@@ -1,0 +1,51 @@
+@model OrganiserDashboard
+@{
+    ViewData["Title"] = "My events";
+}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <h1 class="rd-heading mb-0">My events</h1>
+    <a class="btn rd-btn" asp-action="CreateEvent">Create a new event</a>
+</div>
+
+@if (Model.Events.Count == 0)
+{
+    <div class="rd-panel text-center py-5">
+        <h3 class="rd-heading">You have not created an event yet</h3>
+        <a class="btn rd-btn" asp-action="CreateEvent">Create your first event</a>
+    </div>
+}
+else
+{
+    <div class="rd-panel">
+        <div class="table-responsive">
+            <table class="table align-middle rd-table">
+                <thead>
+                    <tr><th>Event</th><th>Date</th><th>Type</th><th>Categories</th><th>Enrolments</th><th class="text-end">Manage</th></tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.Events)
+                {
+                    <tr>
+                        <td><strong>@item.Title</strong><br /><span class="rd-meta">@item.Location</span></td>
+                        <td>@Formatters.DateTimeText(item.EventDate)</td>
+                        <td><span class="badge rd-type-badge">@item.EventType</span></td>
+                        <td>@item.CategoryCount</td>
+                        <td>@item.TotalEnrolments</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="EditEvent" asp-route-id="@item.EventId">Edit</a>
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Categories" asp-route-eventId="@item.EventId">Categories</a>
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Enrolments" asp-route-eventId="@item.EventId">Enrolments</a>
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Results" asp-route-eventId="@item.EventId">Results</a>
+                            <form asp-controller="Organiser" asp-action="DeleteEvent" method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete this event? This cannot be undone.');">
+                                <input type="hidden" name="id" value="@item.EventId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
