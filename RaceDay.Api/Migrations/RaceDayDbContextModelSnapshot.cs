@@ -125,6 +125,27 @@ namespace RaceDay.Api.Migrations
                     b.ToTable("Events");
                 });
 
+            modelBuilder.Entity("RaceDay.Api.Models.EventImage", b =>
+                {
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BlobName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("EventImages");
+                });
+
             modelBuilder.Entity("RaceDay.Api.Models.Result", b =>
                 {
                     b.Property<int>("ResultId")
@@ -221,6 +242,27 @@ namespace RaceDay.Api.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("RaceDay.Api.Models.UserImage", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BlobName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("UserImages");
+                });
+
             modelBuilder.Entity("RaceDay.Api.Models.Category", b =>
                 {
                     b.HasOne("RaceDay.Api.Models.Event", "Event")
@@ -262,6 +304,15 @@ namespace RaceDay.Api.Migrations
                     b.Navigation("Organiser");
                 });
 
+            modelBuilder.Entity("RaceDay.Api.Models.EventImage", b =>
+                {
+                    b.HasOne("RaceDay.Api.Models.Event", null)
+                        .WithOne()
+                        .HasForeignKey("RaceDay.Api.Models.EventImage", "EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("RaceDay.Api.Models.Result", b =>
                 {
                     b.HasOne("RaceDay.Api.Models.Enrolment", "Enrolment")
@@ -282,6 +333,15 @@ namespace RaceDay.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("RaceDay.Api.Models.UserImage", b =>
+                {
+                    b.HasOne("RaceDay.Api.Models.User", null)
+                        .WithOne()
+                        .HasForeignKey("RaceDay.Api.Models.UserImage", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RaceDay.Api.Models.Category", b =>

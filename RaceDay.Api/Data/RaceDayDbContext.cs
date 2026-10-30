@@ -14,6 +14,10 @@ public class RaceDayDbContext : DbContext
     public DbSet<Enrolment> Enrolments => Set<Enrolment>();
     public DbSet<Result> Results => Set<Result>();
 
+    // Part 3: images are stored in Blob Storage, these tables only remember which blob belongs to whom.
+    public DbSet<EventImage> EventImages => Set<EventImage>();
+    public DbSet<UserImage> UserImages => Set<UserImage>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Role>(entity =>
@@ -72,6 +76,25 @@ public class RaceDayDbContext : DbContext
             entity.HasOne(res => res.Enrolment)
                   .WithOne(en => en.Result)
                   .HasForeignKey<Result>(res => res.EnrolmentId);
+        });
+
+        // Part 3: one banner per event and one picture per user.
+        modelBuilder.Entity<EventImage>(entity =>
+        {
+            entity.HasKey(i => i.EventId);
+            entity.HasOne<Event>()
+                  .WithOne()
+                  .HasForeignKey<EventImage>(i => i.EventId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<UserImage>(entity =>
+        {
+            entity.HasKey(i => i.UserId);
+            entity.HasOne<User>()
+                  .WithOne()
+                  .HasForeignKey<UserImage>(i => i.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Seed the two roles so RoleId 1 = Organiser, 2 = Participant,
