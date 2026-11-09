@@ -6,7 +6,7 @@ Part 3 adds the website for the RaceDay platform. The website is an ASP.NET Core
 **Student number:** ST10494173
 **Module:** PROG6212
 **Repository:** https://github.com/Skaba02/RaceDay-Part2 (branch `part3-mvc`)
-**Video walkthrough:** [ADD YOUTUBE LINK]
+**Video walkthrough:** https://youtu.be/ggtGRf29xmM?si=zJjO0RzcKw83zRgx
 
 Part 2 is described in [README-Part2.md](README-Part2.md).
 
