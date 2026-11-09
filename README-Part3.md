@@ -108,6 +108,8 @@ dotnet user-secrets set "BlobStorage:ConnectionString" "<your connection string>
 - For an Azure storage account, copy the connection string from the portal: *Storage account*, then *Security + networking*, then *Access keys*.
 - For local testing without Azure, run the free **Azurite** emulator and use `UseDevelopmentStorage=true` as the connection string.
 
+- **Storage used for this submission.** My lab Azure account gave a service error and no real storage account was available, so I used the Azurite emulator (UseDevelopmentStorage=true) for all image uploads. The code is the same for a real storage account, and only the connection string changes.
+
 ## 7. Running the application on your computer
 
 You need the .NET 8 SDK, SQL Server and the setup from [README-Part2.md](README-Part2.md) (connection string and `dotnet ef database update`).
@@ -151,13 +153,15 @@ docker build -t raceday-web ./RaceDay.Web
 docker run --rm -p 8080:8080 -e ApiBaseUrl=http://host.docker.internal:5100 --add-host=host.docker.internal:host-gateway raceday-web
 ```
 
-Stop it with `Ctrl + C` (or `docker compose down`). The container behaves exactly like the local version, because the only difference is the `ApiBaseUrl` setting.
+Stop it with `Ctrl + C` (or `docker compose down`).
+
+**Note:** Docker Desktop could not be installed on my lab laptop (the Microsoft Store installation failed), so I could not run the container myself. The Dockerfile and Compose file are built and checked by the GitHub Actions workflow (section 9), which builds the Docker image on every push. The only difference between the container and the local site is the ApiBaseUrl setting.
 
 **About the Dockerfile.** It uses two stages: the .NET SDK image builds and publishes the site, and the much smaller ASP.NET runtime image runs it. The project file is copied first so the package restore is cached, and the container runs as a non-root user.
 
 ## 9. Tests and CI
 
-- The API tests (xUnit) now total 45. The new `Part3ApiTests` cover search filters, event details, the Organiser dashboard, role rules, my enrolments, my results, the delete conflict and the image upload when storage is not set up.
+- The API tests (xUnit) now total 46. The new `Part3ApiTests` cover search filters, event details, the Organiser dashboard, role rules, my enrolments, my results, the delete conflict and the image upload when storage is not set up.
 - The GitHub Actions workflow `.github/workflows/build-and-test.yml` runs on every push to `main` and `part3-mvc`. It restores the solution, builds the API **and the MVC project**, runs the tests, and then builds the Docker image.
 
 ![GitHub Actions run passing](docs/ci-part3.png)
@@ -172,7 +176,7 @@ In line with my institution's AI-use policy, I declare the following.
 
 - **Tool used:** Claude (Anthropic), as an AI assistant.
 - **How it was used:** the Part 3 additions were generated with the assistant. These are the RaceDay.Web MVC website (controllers, views and styling), the new API endpoints and Blob Storage service, the Dockerfile and Compose file, the updated CI workflow, this README and the video script. The Part 2 disclosure in [README-Part2.md](README-Part2.md) still applies.
-- I read the code, ran the API and the website, tested the pages for both roles, ran the tests and the Docker container, and I am responsible for the work I am submitting.
+- I read the code, ran the API and the website, tested the pages for both roles and ran the tests. Docker Desktop could not be installed on my lab laptop, so I did not run the container myself. I checked that the Docker image builds in GitHub Actions. I used the Azurite emulator for image storage. I am responsible for the work I am submitting.
 
 ## 12. References
 
